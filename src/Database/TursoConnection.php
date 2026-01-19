@@ -65,15 +65,15 @@ protected function getDefaultQueryGrammar(): TursoQueryGrammar
 }
 
 
-    protected function getDefaultSchemaGrammar(): TursoSchemaGrammar
-    {
-        $grammar = new TursoSchemaGrammar();
-        $grammar->setConnection($this);
+protected function getDefaultSchemaGrammar(): TursoSchemaGrammar
+{
+    $grammar = new TursoSchemaGrammar($this);
 
-        $this->withTablePrefix($grammar);
+    $this->withTablePrefix($grammar);
 
-        return $grammar;
-    }
+    return $grammar;
+}
+
 
     public function getSchemaBuilder(): TursoSchemaBuilder
     {
