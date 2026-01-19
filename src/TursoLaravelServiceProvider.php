@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 use RichanFongdasen\Turso\Commands\TursoSyncCommand;
 use RichanFongdasen\Turso\Database\TursoConnection;
 use RichanFongdasen\Turso\Database\TursoConnector;
-use RichanFongdasen\Turso\Facades\Turso;
+use RichanFongdasen\Turso\Facades\Artisan;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
@@ -21,7 +21,8 @@ class TursoLaravelServiceProvider extends PackageServiceProvider
         // ВИПРАВЛЕННЯ: Синхронізуємо тільки якщо увімкнено в конфігу
         if (config('turso-laravel.auto_sync_on_terminate', false)) {
             app()->terminating(function () {
-                Turso::sync();
+                // Turso::sync();
+                Artisan::call('turso:sync');
             });
         }
     }
