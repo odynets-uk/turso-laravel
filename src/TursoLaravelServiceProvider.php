@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\DB;
 use RichanFongdasen\Turso\Commands\TursoSyncCommand;
 use RichanFongdasen\Turso\Database\TursoConnection;
 use RichanFongdasen\Turso\Database\TursoConnector;
-use RichanFongdasen\Turso\Facades\Turso;
-use Illuminate\Support\Facades\Artisan;
+// use RichanFongdasen\Turso\Facades\Turso;
+use Illuminate\Support\Facades\DB;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
@@ -23,7 +23,8 @@ class TursoLaravelServiceProvider extends PackageServiceProvider
         if (config('turso-laravel.auto_sync_on_terminate', false)) {
             app()->terminating(function () {
                 // Turso::sync();
-                Artisan::call('turso:sync');
+                // Artisan::call('turso:sync');
+                DB::connection('turso')->sync();
             });
         }
     }
