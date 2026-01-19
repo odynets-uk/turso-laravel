@@ -52,13 +52,15 @@ class TursoConnection extends Connection
         return new TursoQueryProcessor();
     }
 
-    protected function getDefaultQueryGrammar(): TursoQueryGrammar
+    protected function getDefaultQueryGrammar()
     {
-        $grammar = new TursoQueryGrammar();
-        $grammar->setConnection($this);
-
-        $this->withTablePrefix($grammar);
-
+        $grammar = new TursoQueryGrammar($this);
+    
+        // Якщо в класі є метод setTablePrefix (як у стандартних grammar’ів) – виклич його
+        if (method_exists($grammar, 'setTablePrefix')) {
+            $grammar->setTablePrefix($this->tablePrefix);
+        }
+    
         return $grammar;
     }
 
