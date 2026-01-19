@@ -8,7 +8,8 @@ use Illuminate\Support\Facades\DB;
 use RichanFongdasen\Turso\Commands\TursoSyncCommand;
 use RichanFongdasen\Turso\Database\TursoConnection;
 use RichanFongdasen\Turso\Database\TursoConnector;
-use RichanFongdasen\Turso\Facades\Artisan;
+use RichanFongdasen\Turso\Facades\Turso;
+use Illuminate\Support\Facades\Artisan;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
