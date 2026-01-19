@@ -16,9 +16,10 @@ class TursoConnection extends Connection
 {
     public function __construct(TursoPDO $pdo, string $database = ':memory:', string $tablePrefix = '', array $config = [])
     {
-        // Додаємо перевірку для ключа 'url' та 'db_url'
+         // ВАЖЛИВО: Перевіряємо і 'db_url', і 'url', щоб підтримати різні варіанти конфігурації
         foreach (['url', 'db_url'] as $key) {
             if (isset($config[$key]) && is_string($config[$key]) && Str::startsWith($config[$key], 'libsql:')) {
+                // Замінюємо libsql: на https: для коректної роботи cURL/Guzzle
                 $config[$key] = Str::replaceFirst('libsql:', 'https:', $config[$key]);
             }
         }
