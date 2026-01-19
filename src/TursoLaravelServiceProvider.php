@@ -18,9 +18,12 @@ class TursoLaravelServiceProvider extends PackageServiceProvider
     {
         parent::boot();
 
-        app()->terminating(function () {
-            Turso::sync();
-        });
+        // ВИПРАВЛЕННЯ: Синхронізуємо тільки якщо увімкнено в конфігу
+        if (config('turso-laravel.auto_sync_on_terminate', false)) {
+            app()->terminating(function () {
+                Turso::sync();
+            });
+        }
     }
 
     public function configurePackage(Package $package): void
