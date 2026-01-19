@@ -18,7 +18,7 @@ class TursoSyncCommand extends Command
     protected function compileRunProcess(string $connectionName): string
     {
         return sprintf(
-            '%s %s "%s" "%s" "%s"',
+            '"%s" "%s" "%s" "%s" "%s"',
             $this->getNodePath(),
             config('turso-laravel.sync_command.script_filename'),
             DB::connection($connectionName)->getConfig('db_url'),
