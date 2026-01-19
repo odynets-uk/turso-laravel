@@ -8,7 +8,7 @@ use Illuminate\Cache\ArrayStore;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Support\{Facades\Http, Str};
 use RichanFongdasen\Turso\Http\QueryResponse;
 use RichanFongdasen\Turso\Http\RequestBody;
 use RichanFongdasen\Turso\Http\ResponseBody;
@@ -35,6 +35,10 @@ class TursoClient
             config('turso-laravel', [])
         ));
         $this->baseUrl = (string) $this->config->get('db_url', '');
+        // ВИПРАВЛЕННЯ: Замінюємо libsql:// на https://
+        if (Str::startsWith($dbUrl, 'libsql://')) {
+            $dbUrl = Str::replaceFirst('libsql://', 'https://', $dbUrl);
+        }
 
         $this->connectionStore = new ArrayStore();
 
