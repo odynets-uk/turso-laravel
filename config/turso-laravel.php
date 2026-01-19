@@ -14,5 +14,5 @@ return [
         'timeout' => 60,
     ],
     
-    'auto_sync_on_terminate' => env('TURSO_AUTO_SYNC', false), // Added
+    'auto_sync_on_terminate' => env('TURSO_AUTO_SYNC', true), // Added
 ];
