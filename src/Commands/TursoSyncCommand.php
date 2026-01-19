@@ -29,7 +29,17 @@ class TursoSyncCommand extends Command
 
     protected function getNodePath(): string
     {
-        $nodePath = config('turso-laravel.sync_command.node_path') ?? trim((string) Process::run('which node')->output());
+        $nodePath = config('turso-laravel.sync_command.node_path');
+
+        if (! $nodePath) {
+            // Для Windows використовуємо 'where', для інших - 'which'
+            $command = (DIRECTORY_SEPARATOR === '\\') ? 'where node' : 'which node';
+            $output = trim((string) Process::run($command)->output());
+            
+            // Беремо перший рядок, якщо знайдено декілька шляхів
+            $lines = preg_split('/\r\n|\r|\n/', $output);
+            $nodePath = $lines[0] ?? '';
+        }
 
         if (($nodePath === '') || ! file_exists($nodePath)) {
             throw new RuntimeException('Node executable not found.');
@@ -37,6 +47,7 @@ class TursoSyncCommand extends Command
 
         return $nodePath;
     }
+
 
     public function handle(): int
     {
