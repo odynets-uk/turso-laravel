@@ -12,5 +12,8 @@ return [
         'script_filename' => 'turso-sync.mjs',
         'script_path'     => realpath(__DIR__ . '/..'),
         'timeout'         => 60,
-    ],
+    ],'
+
+    // Added
+    'auto_sync_on_terminate' => env('TURSO_AUTO_SYNC', true),
 ];
