@@ -27,7 +27,7 @@ class TursoSyncCommand extends Command
         );
     }
 
-    protected function getNodePath(): string
+protected function getNodePath(): string
     {
         $nodePath = config('turso-laravel.sync_command.node_path');
 
@@ -39,10 +39,27 @@ class TursoSyncCommand extends Command
             // Беремо перший рядок, якщо знайдено декілька шляхів
             $lines = preg_split('/\r\n|\r|\n/', $output);
             $nodePath = $lines[0] ?? '';
+            
+            // ДОДАТИ: Фолбек для стандартних шляхів Windows
+            if (($nodePath === '') && (DIRECTORY_SEPARATOR === '\\')) {
+                $possiblePaths = [
+                    'C:\Program Files\nodejs\node.exe',
+                    'C:\Program Files (x86)\nodejs\node.exe',
+                    getenv('PROGRAMFILES') . '\nodejs\node.exe',
+                    getenv('LOCALAPPDATA') . '\Programs\nodejs\node.exe',
+                ];
+                
+                foreach ($possiblePaths as $path) {
+                    if (file_exists($path)) {
+                        $nodePath = $path;
+                        break;
+                    }
+                }
+            }
         }
 
         if (($nodePath === '') || ! file_exists($nodePath)) {
-            throw new RuntimeException('Node executable not found.');
+            throw new RuntimeException('Node executable not found. Please set NODE_PATH in your .env file.');
         }
 
         return $nodePath;
