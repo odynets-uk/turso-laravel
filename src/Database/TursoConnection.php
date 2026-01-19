@@ -53,26 +53,28 @@ class TursoConnection extends Connection
     }
 
 protected function getDefaultQueryGrammar(): TursoQueryGrammar
-{
-    // Передаємо $this (Connection) у конструктор
-    $grammar = new TursoQueryGrammar($this);
-    
-    // $grammar->setConnection($this); // Цей рядок можна видалити, бо connection вже встановлено в конструкторі
+    {
+        // 1. Передаємо $this у конструктор (виправляє ArgumentCountError)
+        $grammar = new TursoQueryGrammar($this);
+        
+        // 2. Встановлюємо префікс вручну (виправляє BadMethodCallException)
+        // Замість $this->withTablePrefix($grammar);
+        $grammar->setTablePrefix($this->tablePrefix);
 
-    $this->withTablePrefix($grammar);
+        return $grammar;
+    }
 
-    return $grammar;
-}
+    protected function getDefaultSchemaGrammar(): TursoSchemaGrammar
+    {
+        // 1. Передаємо $this у конструктор
+        $grammar = new TursoSchemaGrammar($this);
 
+        // 2. Встановлюємо префікс вручну
+        // Замість $this->withTablePrefix($grammar);
+        $grammar->setTablePrefix($this->tablePrefix);
 
-protected function getDefaultSchemaGrammar(): TursoSchemaGrammar
-{
-    $grammar = new TursoSchemaGrammar($this);
-
-    $this->withTablePrefix($grammar);
-
-    return $grammar;
-}
+        return $grammar;
+    }
 
 
     public function getSchemaBuilder(): TursoSchemaBuilder
