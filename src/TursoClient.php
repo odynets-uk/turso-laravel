@@ -34,11 +34,17 @@ class TursoClient
             $config,
             config('turso-laravel', [])
         ));
-        $this->baseUrl = (string) $this->config->get('db_url', '');
+        
+        // Отримуємо URL з конфігу
+        $dbUrl = (string) $this->config->get('db_url', '');
+        
         // ВИПРАВЛЕННЯ: Замінюємо libsql:// на https://
         if (Str::startsWith($dbUrl, 'libsql://')) {
             $dbUrl = Str::replaceFirst('libsql://', 'https://', $dbUrl);
         }
+        
+        // Тепер присвоюємо вже оброблений URL
+        $this->baseUrl = $dbUrl;
 
         $this->connectionStore = new ArrayStore();
 
