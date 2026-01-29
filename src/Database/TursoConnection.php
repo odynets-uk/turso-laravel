@@ -14,6 +14,11 @@ use RichanFongdasen\Turso\Jobs\TursoSyncJob;
 
 class TursoConnection extends Connection
 {
+    /**
+     * Track if any write operations were executed
+     */
+    protected bool $hasModifiedRecords = false;
+        
     public function __construct(TursoPDO $pdo, string $database = ':memory:', string $tablePrefix = '', array $config = [])
     {
          // ВАЖЛИВО: Перевіряємо і 'db_url', і 'url', щоб підтримати різні варіанти конфігурації
@@ -27,6 +32,34 @@ class TursoConnection extends Connection
         parent::__construct($pdo, $database, $tablePrefix, $config);
 
         $this->schemaGrammar = $this->getDefaultSchemaGrammar();
+    }
+
+    /**
+     * Run an insert statement against the database.
+     */
+    public function insert($query, $bindings = []): bool
+    {
+        $result = parent::insert($query, $bindings);
+        
+        if ($result) {
+            $this->hasModifiedRecords = true;
+        }
+        
+        return $result;
+    }
+
+    /**
+     * Run an update statement against the database.
+     */
+    public function update($query, $bindings = []): int
+    {
+        $result = parent::update($query, $bindings);
+        
+        if ($result > 0) {
+            $this->hasModifiedRecords = true;
+        }
+        
+        return $result;
     }
 
     public function createReadPdo(array $config = []): ?PDO
@@ -44,6 +77,57 @@ class TursoConnection extends Connection
         return $pdo;
     }
 
+    /**
+     * Run a delete statement against the database.
+     */
+    public function delete($query, $bindings = []): int
+    {
+        $result = parent::delete($query, $bindings);
+        
+        if ($result > 0) {
+            $this->hasModifiedRecords = true;
+        }
+        
+        return $result;
+    }
+
+    /**
+     * Execute an SQL statement and return the boolean result.
+     */
+    public function statement($query, $bindings = []): bool
+    {
+        $result = parent::statement($query, $bindings);
+        
+        // Check if it's a write operation
+        $sql = strtoupper(trim($query));
+        if (
+            str_starts_with($sql, 'INSERT') ||
+            str_starts_with($sql, 'UPDATE') ||
+            str_starts_with($sql, 'DELETE') ||
+            str_starts_with($sql, 'REPLACE')
+        ) {
+            $this->hasModifiedRecords = true;
+        }
+        
+        return $result;
+    }
+
+    /**
+     * Check if any write operations were executed on this connection.
+     */
+    public function hasModifiedRecords(): bool
+    {
+        return $this->hasModifiedRecords;
+    }
+
+    /**
+     * Reset the modified records flag.
+     */
+    public function resetModifiedRecords(): void
+    {
+        $this->hasModifiedRecords = false;
+    }
+    
     protected function escapeBinary(mixed $value): string
     {
         $hex = bin2hex($value);
@@ -56,7 +140,7 @@ class TursoConnection extends Connection
         return new TursoQueryProcessor();
     }
 
-protected function getDefaultQueryGrammar(): TursoQueryGrammar
+    protected function getDefaultQueryGrammar(): TursoQueryGrammar
     {
         // 1. Передаємо $this у конструктор (виправляє ArgumentCountError)
         $grammar = new TursoQueryGrammar($this);
@@ -80,7 +164,6 @@ protected function getDefaultQueryGrammar(): TursoQueryGrammar
         return $grammar;
     }
 
-
     public function getSchemaBuilder(): TursoSchemaBuilder
     {
         if (is_null($this->schemaGrammar)) {
@@ -103,12 +186,14 @@ protected function getDefaultQueryGrammar(): TursoQueryGrammar
     public function sync(): void
     {
         Artisan::call('turso:sync', ['connectionName' => $this->getName()]);
+        $this->resetModifiedRecords();
     }
 
     public function backgroundSync(): void
     {
         TursoSyncJob::dispatch((string) $this->getName());
         $this->enableQueryLog();
+        $this->resetModifiedRecords();
     }
 
     public function disableQueryLog(): void
