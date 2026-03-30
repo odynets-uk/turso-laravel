@@ -34,7 +34,7 @@ class TursoPDOStatement extends PDOStatement
         protected array $options = [],
     ) {}
 
-    public function setFetchMode(int $mode, mixed ...$args): bool
+    public function setFetchMode(int $mode, mixed ...$args): true
     {
         $this->fetchMode = $mode;
 
